@@ -1,70 +1,27 @@
-# Getting Started with Create React App
+# Network Test Sample App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a React Sample App that shows how to integrate the Vonage Video Network Test [https://www.npmjs.com/package/opentok-network-test-js](https://www.npmjs.com/package/opentok-network-test-js).
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+The project has two main views:
 
-### `yarn start`
+1. Home: sample component with a Home view to demonstrate React Router 
+2. Waiting Room: page with the network test and browser checks included
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Waiting Room
 
-### `yarn test`
+The Waiting Room view is composed by four Cards:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Browser checks**: this card uses the [checkRequirements](https://tokbox.com/developer/sdks/js/reference/OT.html#checkSystemRequirements) function to check if the browser supports WebRTC
+2. **Device Access**: this card uses the `accessAllowed` and `accessDenied` events to check if the user has accepeted or denied the microphone and camera permissions
+3. **Connectivity Test**: this card implements the `testConnectivity` and `testQuality` of the  `opentok-network-js` module. The `testConnectivity` checks the connectivity to Vonage Video Servers. The `testQuality` return back the expected quality for microphone and camera streams.
+4. **Microphone and Camera selection**: This card uses the `OT.getDevices` to fill the microphone and camera select menu. It also implements the audio and video toggle function to mute and unmute the streams. 
 
-### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Run the Project
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Run `npm install`
+2. Copy `.env.example` to `.env` and fill the variables
+4. Run locally with `npm start` 

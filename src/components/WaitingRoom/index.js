@@ -4,7 +4,6 @@ import { useHistory } from 'react-router-dom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CheckBox from '@material-ui/icons/CheckBox';
 import Error from '@material-ui/icons/Error';
-import QualityTestDialog from '../QualityTestDialog';
 import {
   Button,
   FormControl,
@@ -28,16 +27,19 @@ import WifiIcon from '@material-ui/icons/Wifi';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import Mic from '@material-ui/icons/Mic';
 
+const defaultLocalAudio = true;
+const defaultLocalVideo = true;
+
 export function WaitingRoom() {
   const classes = useStyles();
   const { push } = useHistory();
-  const defaultLocalAudio = true;
-  const defaultLocalVideo = true;
+  // LocalAudio and localVideo are used in the toggle function
   const [localAudio, setLocalAudio] = useState(defaultLocalAudio);
   const [localVideo, setLocalVideo] = useState(defaultLocalVideo);
-  const [showQualityDialog, setShowQualityDialog] = useState(false);
+  /* const [showQualityDialog, setShowQualityDialog] = useState(false); */ //todo add the qualitt results
   const waitingRoomVideoContainer = useRef();
 
+  // setAudioDevice and setVideoDevice are used in the Select Menu
   let [audioDevice, setAudioDevice] = useState('');
   let [videoDevice, setVideoDevice] = useState('');
 
@@ -51,12 +53,17 @@ export function WaitingRoom() {
     pubInitialised
   } = usePublisher();
 
-  const { connectivityTest, qualityTest, runNetworkTest, stopNetworkTest } =
-    useNetworkTest({
-      apikey: process.env.REACT_APP_VIDEO_NETWORKTEST_API_KEY,
-      sessionId: process.env.REACT_APP_VIDEO_NETWORKTEST_SESSION,
-      token: process.env.REACT_APP_VIDEO_NETWORKTEST_TOKEN
-    });
+  const {
+    connectivityTest,
+    qualityTest,
+    isRunning,
+    runNetworkTest,
+    stopNetworkTest
+  } = useNetworkTest({
+    apikey: process.env.REACT_APP_VIDEO_NETWORKTEST_API_KEY,
+    sessionId: process.env.REACT_APP_VIDEO_NETWORKTEST_SESSION,
+    token: process.env.REACT_APP_VIDEO_NETWORKTEST_TOKEN
+  });
 
   const handleAudioChange = React.useCallback((e) => {
     setLocalAudio(e.target.checked);
@@ -65,10 +72,6 @@ export function WaitingRoom() {
   const handleVideoChange = React.useCallback((e) => {
     setLocalVideo(e.target.checked);
   }, []);
-
-  const handleQualityTestDialogClose = () => {
-    setShowQualityDialog(false);
-  };
 
   const handleJoinClick = () => {
     stopNetworkTest(); // Stop network test
@@ -79,9 +82,9 @@ export function WaitingRoom() {
       const videoDeviceId = e.target.value;
       setVideoDevice(e.target.value);
       publisher.setVideoSource(videoDeviceId);
-      setLocalVideo(videoDeviceId);
+      // setLocalVideo(videoDeviceId);
     },
-    [publisher, setVideoDevice, setLocalVideo]
+    [publisher, setVideoDevice]
   );
 
   const handleAudioSource = React.useCallback(
@@ -97,11 +100,23 @@ export function WaitingRoom() {
         if (deviceId != null) {
           publisher.setAudioSource(deviceId);
           setAudioDevice(audioDeviceLabel);
-          setLocalAudio(audioDeviceLabel);
+          // setLocalAudio(audioDeviceLabel);
         }
       }
     },
-    [publisher, setAudioDevice, setLocalAudio, deviceInfo]
+    [publisher, setAudioDevice, deviceInfo]
+  );
+
+  const toggleNetworkTest = React.useCallback(
+    (e) => {
+      // todo if it's running, don't re-run.
+      if (isRunning) {
+        stopNetworkTest();
+      } else {
+        runNetworkTest();
+      }
+    },
+    [runNetworkTest, stopNetworkTest, isRunning]
   );
 
   useEffect(() => {
@@ -113,7 +128,7 @@ export function WaitingRoom() {
     if (waitingRoomVideoContainer.current) {
       initPublisher(waitingRoomVideoContainer.current.id, publisherOptions);
     }
-  }, [initPublisher, defaultLocalAudio, defaultLocalVideo]);
+  }, [initPublisher]);
 
   useEffect(() => {
     console.log('UseEffect - localAudio');
@@ -132,7 +147,7 @@ export function WaitingRoom() {
   useEffect(() => {
     console.log('Effect Quality Test', qualityTest);
     if (!qualityTest.loading) {
-      setShowQualityDialog(true);
+      // TODO add it here setShowQualityDialog(true);
     }
   }, [qualityTest]);
 
@@ -149,11 +164,8 @@ export function WaitingRoom() {
 
   useEffect(() => {
     if (publisher && pubInitialised && deviceInfo) {
-      console.log('useEffect - preview', deviceInfo);
       const currentAudioDevice = publisher.getAudioSource();
       const currentVideoDevice = publisher.getVideoSource();
-      console.log('currentAudioDevice', currentAudioDevice);
-      console.log('currentVideoDevice', currentVideoDevice);
       if (currentAudioDevice && currentAudioDevice.label) {
         setAudioDevice(currentAudioDevice.label);
       }
@@ -172,13 +184,17 @@ export function WaitingRoom() {
             <span>Camera and Microphone Permissions</span>
           </div>
           <div>
-            {accessAllowed === DEVICE_ACCESS_STATUS.PENDING ? (
-              <CircularProgress size={30} />
-            ) : accessAllowed === DEVICE_ACCESS_STATUS.ACCEPTED ? (
-              <CheckBox className={classes.green}></CheckBox>
-            ) : (
-              <Error className={classes.red} />
-            )}
+            <div className={classes.flexCentered}>
+              <h5>Device Permissions: </h5>
+
+              {accessAllowed === DEVICE_ACCESS_STATUS.PENDING ? (
+                <CircularProgress size={30} />
+              ) : accessAllowed === DEVICE_ACCESS_STATUS.ACCEPTED ? (
+                <CheckBox className={classes.green}></CheckBox>
+              ) : (
+                <Error className={classes.red} />
+              )}
+            </div>
           </div>
         </div>
         <div className={classes.featureCheck}>
@@ -188,7 +204,7 @@ export function WaitingRoom() {
           </div>
 
           {OT.checkSystemRequirements() ? (
-            <div>
+            <div className={classes.flexCentered}>
               <h5>The browser is supported </h5>
               <CheckBox className={classes.green}></CheckBox>
             </div>
@@ -301,7 +317,14 @@ export function WaitingRoom() {
         </div>
       </div>
       <div className={classes.waitingRoomButtons}>
-        <Grid container direction="column" justify="center" alignItems="center">
+        <Grid container justify="center" alignItems="center">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={toggleNetworkTest}
+          >
+            {isRunning ? 'Stop Network Test' : 'Re-Test'}
+          </Button>
           <Button variant="contained" color="primary" onClick={handleJoinClick}>
             Join Call
           </Button>

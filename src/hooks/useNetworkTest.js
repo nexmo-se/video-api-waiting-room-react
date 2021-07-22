@@ -7,7 +7,7 @@ const networkTestVideoTimeout = 15000; // To Edit to 30s
 export const useNetworkTest = ({ apikey, sessionId, token }) => {
   /* const [otNetworkTest, setOtNetworkTest] = useState(null); */
   const otNetworkTest = useRef();
-  const [runTest, setRunTest] = useState(true);
+  const [isRunning, setIsRunning] = useState(false); //todo
   const [connectivityTest, setConnectivityTest] = useState({
     data: null,
     loading: true
@@ -28,11 +28,11 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
   }, [apikey, sessionId, token]);
 
   const runNetworkTest = useCallback(() => {
-    console.log('runNetworkTest - useCallback');
+    console.log('runNetworkTest - useCallback - isRunning', isRunning);
     setConnectivityTest((state) => ({ data: state.data, loading: true }));
     setQualityTest((state) => ({ data: state.data, loading: true }));
-    if (otNetworkTest.current && runTest) {
-      setRunTest(false);
+    if (otNetworkTest.current && !isRunning) {
+      setIsRunning(true);
       otNetworkTest.current
         .testConnectivity()
         .then((results) => {
@@ -53,31 +53,36 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
                     data: results,
                     loading: false
                   }));
+                  setIsRunning(false);
                 }
               })
               .catch((error) => {
                 console.log('OpenTok quality test error', error);
+                setIsRunning(false);
               });
           }
         })
         .catch(function (error) {
           console.log('OpenTok connectivity test error', error);
+          setIsRunning(false);
         });
     }
-  }, [otNetworkTest, runTest]);
+  }, [otNetworkTest, isRunning]);
 
   /**
    * Stop the network testConnectivity test. Pleae check limitation
    * https://github.com/opentok/opentok-network-test-js#otnetworkteststop
    */
   const stopNetworkTest = useCallback(() => {
-    console.log('stopNetworkTest - useCallback', runTest);
-    if (otNetworkTest.current && !runTest) {
+    console.log('stopNetworkTest - useCallback', isRunning);
+    if (otNetworkTest.current && isRunning) {
       otNetworkTest.current.stop();
-      otNetworkTest.current = null;
-      setRunTest(true);
+      /* otNetworkTest.current = null; */
+      setIsRunning(false);
+      setConnectivityTest({ data: null, loading: true });
+      setQualityTest({ data: null, loading: true });
     }
-  }, [otNetworkTest, runTest]);
+  }, [otNetworkTest, isRunning]);
 
   useEffect(() => {
     initNetworkTest();
@@ -89,6 +94,6 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
     initNetworkTest,
     runNetworkTest,
     stopNetworkTest,
-    setRunTest
+    isRunning
   };
 };

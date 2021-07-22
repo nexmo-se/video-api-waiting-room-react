@@ -23,7 +23,9 @@ export default makeStyles((theme) => ({
   waitingRoomTitle: {
     fontSize: '24px',
     fontWeight: 500,
-    marginLeft: '15px'
+    marginLeft: '15px',
+    display: 'flex',
+    alignItems: 'center'
   },
   waitingRoomButtons: {
     display: 'flex',
@@ -49,6 +51,11 @@ export default makeStyles((theme) => ({
   },
   flex: {
     display: 'flex'
+  },
+  flexCentered: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   green: {
     color: green[600]
