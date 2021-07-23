@@ -120,12 +120,6 @@ export function WaitingRoom() {
     [isRunning, runNetworkTest, stopNetworkTest]
   );
 
-  /*  useEffect(() => {
-    if (isRunning !== networkTestRunning) {
-      setNetworkTestRunning(isRunning);
-    }
-  }, [isRunning, networkTestRunning]); */
-
   useEffect(() => {
     console.log('Waiting room - Mount');
     const publisherOptions = {
@@ -322,13 +316,6 @@ export function WaitingRoom() {
       </div>
       <div className={classes.waitingRoomButtons}>
         <Grid container justify="center" alignItems="center">
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={toggleNetworkTest}
-          >
-            {isRunning ? 'Stop Test' : 'Run Test'}
-          </Button>
           <Button variant="contained" color="primary" onClick={handleJoinClick}>
             Join Call
           </Button>
