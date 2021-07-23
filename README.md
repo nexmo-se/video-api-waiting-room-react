@@ -24,4 +24,4 @@ The Waiting Room view is composed by four Cards:
 
 1. Run `npm install`
 2. Copy `.env.example` to `.env` and fill the variables
-4. Run locally with `npm start` 
+4. Run locally with `npm start` §

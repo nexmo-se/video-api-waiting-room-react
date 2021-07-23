@@ -74,8 +74,9 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
    * https://github.com/opentok/opentok-network-test-js#otnetworkteststop
    */
   const stopNetworkTest = useCallback(() => {
-    console.log('stopNetworkTest - useCallback', isRunning);
+    console.log('stopNetworkTest - useCallback STOP#1', isRunning);
     if (otNetworkTest.current && isRunning) {
+      console.log('stopNetworkTest - useCallback STOP#2', isRunning);
       otNetworkTest.current.stop();
       /* otNetworkTest.current = null; */
       setIsRunning(false);

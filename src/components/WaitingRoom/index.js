@@ -36,6 +36,7 @@ export function WaitingRoom() {
   // LocalAudio and localVideo are used in the toggle function
   const [localAudio, setLocalAudio] = useState(defaultLocalAudio);
   const [localVideo, setLocalVideo] = useState(defaultLocalVideo);
+  const [networkTestRunning, setNetworkTestRunning] = useState(false);
   /* const [showQualityDialog, setShowQualityDialog] = useState(false); */ //todo add the qualitt results
   const waitingRoomVideoContainer = useRef();
 
@@ -56,9 +57,9 @@ export function WaitingRoom() {
   const {
     connectivityTest,
     qualityTest,
-    isRunning,
     runNetworkTest,
-    stopNetworkTest
+    stopNetworkTest,
+    isRunning
   } = useNetworkTest({
     apikey: process.env.REACT_APP_VIDEO_NETWORKTEST_API_KEY,
     sessionId: process.env.REACT_APP_VIDEO_NETWORKTEST_SESSION,
@@ -116,8 +117,14 @@ export function WaitingRoom() {
         runNetworkTest();
       }
     },
-    [runNetworkTest, stopNetworkTest, isRunning]
+    [isRunning, runNetworkTest, stopNetworkTest]
   );
+
+  /*  useEffect(() => {
+    if (isRunning !== networkTestRunning) {
+      setNetworkTestRunning(isRunning);
+    }
+  }, [isRunning, networkTestRunning]); */
 
   useEffect(() => {
     console.log('Waiting room - Mount');
@@ -151,9 +158,6 @@ export function WaitingRoom() {
     }
   }, [qualityTest]);
 
-  useEffect(() => {
-    runNetworkTest();
-  }, [runNetworkTest]);
 
   useEffect(() => {
     return () => {
@@ -323,7 +327,7 @@ export function WaitingRoom() {
             color="secondary"
             onClick={toggleNetworkTest}
           >
-            {isRunning ? 'Stop Network Test' : 'Re-Test'}
+            {isRunning ? 'Stop Test' : 'Run Test'}
           </Button>
           <Button variant="contained" color="primary" onClick={handleJoinClick}>
             Join Call
