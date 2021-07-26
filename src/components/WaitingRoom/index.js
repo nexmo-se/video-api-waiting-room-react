@@ -55,7 +55,7 @@ export function WaitingRoom() {
     runNetworkTest,
     stopNetworkTest,
     isRunning,
-    runTest
+    initNetworkTest
   } = useNetworkTest({
     apikey: process.env.REACT_APP_VIDEO_NETWORKTEST_API_KEY,
     sessionId: process.env.REACT_APP_VIDEO_NETWORKTEST_SESSION,
@@ -109,9 +109,10 @@ export function WaitingRoom() {
       if (!isRunning) {
         // todo If I flip this value, runNetworkTest will re-render and run again.
         stopNetworkTest();
+        initNetworkTest();
       }
     },
-    [isRunning, stopNetworkTest]
+    [isRunning, initNetworkTest, stopNetworkTest]
   );
 
   useEffect(() => {
@@ -119,7 +120,6 @@ export function WaitingRoom() {
   }, [runNetworkTest]);
 
   useEffect(() => {
-    console.log('Waiting room - Mount');
     const publisherOptions = {
       publishAudio: defaultLocalAudio,
       publishVideo: defaultLocalVideo
@@ -130,21 +130,18 @@ export function WaitingRoom() {
   }, [initPublisher]);
 
   useEffect(() => {
-    console.log('UseEffect - localAudio');
     if (publisher) {
       publisher.publishAudio(localAudio);
     }
   }, [localAudio, publisher]);
 
   useEffect(() => {
-    console.log('UseEffect - LocalVideo');
     if (publisher) {
       publisher.publishVideo(localVideo);
     }
   }, [localVideo, publisher]);
 
   useEffect(() => {
-    console.log('Effect Quality Test', qualityTest);
     if (!qualityTest.loading) {
       // TODO add it here setShowQualityDialog(true);
     }
@@ -152,7 +149,6 @@ export function WaitingRoom() {
 
   useEffect(() => {
     return () => {
-      console.log('useEffect destroyPublisher Unmount');
       destroyPublisher();
     };
   }, [destroyPublisher]);
