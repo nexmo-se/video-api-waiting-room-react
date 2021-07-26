@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import OT from '@opentok/client';
-import { useHistory } from 'react-router-dom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CheckBox from '@material-ui/icons/CheckBox';
 import Error from '@material-ui/icons/Error';
@@ -8,12 +7,9 @@ import {
   Button,
   FormControl,
   Grid,
-  InputLabel,
   LinearProgress,
   MenuItem,
-  Paper,
-  Select,
-  Typography
+  Select
 } from '@material-ui/core';
 import { usePublisher } from '../../hooks/usePublisher';
 import { AudioSettings } from '../AudioSetting';
@@ -32,7 +28,6 @@ const defaultLocalVideo = true;
 
 export function WaitingRoom() {
   const classes = useStyles();
-  const { push } = useHistory();
   // LocalAudio and localVideo are used in the toggle function
   const [localAudio, setLocalAudio] = useState(defaultLocalAudio);
   const [localVideo, setLocalVideo] = useState(defaultLocalVideo);
@@ -59,7 +54,8 @@ export function WaitingRoom() {
     qualityTest,
     runNetworkTest,
     stopNetworkTest,
-    isRunning
+    isRunning,
+    runTest
   } = useNetworkTest({
     apikey: process.env.REACT_APP_VIDEO_NETWORKTEST_API_KEY,
     sessionId: process.env.REACT_APP_VIDEO_NETWORKTEST_SESSION,
@@ -108,23 +104,19 @@ export function WaitingRoom() {
     [publisher, setAudioDevice, deviceInfo]
   );
 
-  const toggleNetworkTest = React.useCallback(
+  const reRunNetworkTest = React.useCallback(
     (e) => {
-      // todo if it's running, don't re-run.
-      if (isRunning) {
+      if (!isRunning) {
+        // todo If I flip this value, runNetworkTest will re-render and run again.
         stopNetworkTest();
-      } else {
-        runNetworkTest();
       }
     },
-    [isRunning, runNetworkTest, stopNetworkTest]
+    [isRunning, stopNetworkTest]
   );
 
-  /*  useEffect(() => {
-    if (isRunning !== networkTestRunning) {
-      setNetworkTestRunning(isRunning);
-    }
-  }, [isRunning, networkTestRunning]); */
+  useEffect(() => {
+    runNetworkTest();
+  }, [runNetworkTest]);
 
   useEffect(() => {
     console.log('Waiting room - Mount');
@@ -326,9 +318,9 @@ export function WaitingRoom() {
           <Button
             variant="contained"
             color="secondary"
-            onClick={toggleNetworkTest}
+            onClick={reRunNetworkTest}
           >
-            {isRunning ? 'Stop Test' : 'Run Test'}
+            {isRunning ? 'Test is Running' : 'Rerun Test'}
           </Button>
           <Button variant="contained" color="primary" onClick={handleJoinClick}>
             Join Call

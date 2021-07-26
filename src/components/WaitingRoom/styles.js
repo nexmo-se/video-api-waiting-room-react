@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { blueGrey, green, red } from '@material-ui/core/colors';
+import { green, red } from '@material-ui/core/colors';
 export default makeStyles((theme) => ({
   waitingRoomContainer: {
     display: 'flex',

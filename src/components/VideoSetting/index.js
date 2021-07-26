@@ -1,6 +1,4 @@
 import React from 'react';
-
-import Videocam from '@material-ui/icons/Videocam';
 import Switch from '@material-ui/core/Switch';
 
 export const VideoSettings = React.memo(

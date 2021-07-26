@@ -3,11 +3,13 @@ import OT from '@opentok/client';
 import NetworkTest from 'opentok-network-test-js';
 
 const networkTestVideoTimeout = 15000; // To Edit to 30s
+const startTestOnLoad = true;
 
 export const useNetworkTest = ({ apikey, sessionId, token }) => {
   /* const [otNetworkTest, setOtNetworkTest] = useState(null); */
   const otNetworkTest = useRef();
-  const [isRunning, setIsRunning] = useState(false); //todo
+  const [runTest, setRunTest] = useState(startTestOnLoad);
+  const [isRunning, setIsRunning] = useState(false);
   const [connectivityTest, setConnectivityTest] = useState({
     data: null,
     loading: true
@@ -28,17 +30,18 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
   }, [apikey, sessionId, token]);
 
   const runNetworkTest = useCallback(() => {
-    console.log('runNetworkTest - useCallback - isRunning', isRunning);
-    setConnectivityTest((state) => ({ data: state.data, loading: true }));
-    setQualityTest((state) => ({ data: state.data, loading: true }));
-    if (otNetworkTest.current && !isRunning) {
+    console.log('runNetworkTest - useCallback - runTest', runTest);
+    if (otNetworkTest.current && runTest && !isRunning) {
+      setRunTest(false);
       setIsRunning(true);
+      setConnectivityTest((state) => ({ data: state.data, loading: true }));
+      setQualityTest((state) => ({ data: state.data, loading: true }));
       otNetworkTest.current
         .testConnectivity()
         .then((results) => {
-          console.log('OpenTok connectivity test results', results);
           if (otNetworkTest.current) {
-            setConnectivityTest({ loading: false, data: results });
+            console.log('OpenTok connectivity test results', results);
+            setConnectivityTest((state) => ({ loading: false, data: results }));
           }
           if (otNetworkTest.current) {
             otNetworkTest.current
@@ -53,8 +56,8 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
                     data: results,
                     loading: false
                   }));
-                  setIsRunning(false);
                 }
+                setIsRunning(false);
               })
               .catch((error) => {
                 console.log('OpenTok quality test error', error);
@@ -67,23 +70,24 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
           setIsRunning(false);
         });
     }
-  }, [otNetworkTest, isRunning]);
+  }, [otNetworkTest, runTest, isRunning]);
 
   /**
    * Stop the network testConnectivity test. Pleae check limitation
    * https://github.com/opentok/opentok-network-test-js#otnetworkteststop
    */
   const stopNetworkTest = useCallback(() => {
-    console.log('stopNetworkTest - useCallback STOP#1', isRunning);
-    if (otNetworkTest.current && isRunning) {
-      console.log('stopNetworkTest - useCallback STOP#2', isRunning);
+    if (otNetworkTest.current && !runTest) {
+      console.log('stopNetworkTest - useCallback STOP#2', runTest);
       otNetworkTest.current.stop();
-      /* otNetworkTest.current = null; */
+      otNetworkTest.current = null;
+      initNetworkTest();
+      setRunTest(true);
       setIsRunning(false);
       setConnectivityTest({ data: null, loading: true });
       setQualityTest({ data: null, loading: true });
     }
-  }, [otNetworkTest, isRunning]);
+  }, [otNetworkTest, runTest, initNetworkTest]);
 
   useEffect(() => {
     initNetworkTest();
@@ -95,6 +99,8 @@ export const useNetworkTest = ({ apikey, sessionId, token }) => {
     initNetworkTest,
     runNetworkTest,
     stopNetworkTest,
+    runTest,
+    setRunTest,
     isRunning
   };
 };
