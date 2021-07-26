@@ -158,7 +158,6 @@ export function WaitingRoom() {
     }
   }, [qualityTest]);
 
-
   useEffect(() => {
     return () => {
       console.log('useEffect destroyPublisher Unmount');
@@ -303,25 +302,27 @@ export function WaitingRoom() {
             {deviceInfo && pubInitialised && (
               <FormControl>
                 <span>Select Audio Source</span>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={audioDevice}
-                  onChange={handleAudioSource}
-                >
-                  {deviceInfo.audioInputDevices.map((device) => (
-                    <MenuItem key={device.label} value={device.label}>
-                      {device.label}
-                    </MenuItem>
-                  ))}
-                </Select>
+                {deviceInfo.audioInputDevices && (
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={audioDevice}
+                    onChange={handleAudioSource}
+                  >
+                    {deviceInfo.audioInputDevices.map((device) => (
+                      <MenuItem key={device.label} value={device.label}>
+                        {device.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
               </FormControl>
             )}
           </div>
         </div>
       </div>
       <div className={classes.waitingRoomButtons}>
-        <Grid container justify="center" alignItems="center">
+        <Grid container justifyContent="center" alignItems="center">
           <Button
             variant="contained"
             color="secondary"

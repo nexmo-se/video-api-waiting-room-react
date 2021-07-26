@@ -35,13 +35,16 @@ export function usePublisher() {
 
   const accessDeniedListener = useCallback(() => {
     publisherRef.current = null;
+    console.log('UsePublisher - accessDeniedListener');
     setAccessAllowed(DEVICE_ACCESS_STATUS.REJECTED);
     setPubInitialised(false);
   }, []);
 
   const accessAllowedListener = useCallback(() => {
+    console.log('UsePublisher - accessAllowedListener');
+    getDevices();
     setAccessAllowed(DEVICE_ACCESS_STATUS.ACCEPTED);
-  }, []);
+  }, [getDevices]);
 
   const initPublisher = useCallback(
     (containerId, publisherOptions) => {
@@ -101,51 +104,11 @@ export function usePublisher() {
     publisherRef.current.destroy();
   }, []);
 
-  const publish = useCallback(
-    ({ session, containerId, publisherOptions }) => {
-      if (!publisherRef.current) {
-        initPublisher(containerId, publisherOptions);
-      }
-      if (session && publisherRef.current && !isPublishing) {
-        return new Promise((resolve, reject) => {
-          session.publish(publisherRef.current, (err) => {
-            if (err) {
-              console.log('Publisher Error', err);
-              setIsPublishing(false);
-              reject(err);
-            }
-            console.log('Published');
-            setIsPublishing(true);
-            resolve(publisherRef.current);
-          });
-        });
-
-        // isCurrent.current;
-      } else if (publisherRef.current && isPublishing) {
-        // nothing to do
-      }
-    },
-    [initPublisher, isPublishing]
-  );
-
-  const unpublish = useCallback(
-    ({ session }) => {
-      if (publisherRef.current && isPublishing) {
-        session.unpublish(publisherRef.current);
-        setIsPublishing(false);
-        publisherRef.current = null;
-      }
-    },
-    [isPublishing, publisherRef]
-  );
-
   return {
     publisher: publisherRef.current,
     initPublisher,
     destroyPublisher,
-    publish,
     pubInitialised,
-    unpublish,
     accessAllowed,
     logLevel,
     deviceInfo
